@@ -53,6 +53,8 @@ export interface JobQueryOptions {
   search?: string;
   featuredOnly?: boolean;
   companyId?: string;
+  salaryMin?: number;
+  salaryMax?: number;
 }
 
 // ============================================
@@ -69,6 +71,8 @@ export async function getJobs(options: JobQueryOptions = {}): Promise<JobWithCom
     search,
     featuredOnly,
     companyId,
+    salaryMin,
+    salaryMax,
   } = options;
 
   let query = supabase
@@ -103,6 +107,14 @@ export async function getJobs(options: JobQueryOptions = {}): Promise<JobWithCom
     query = query.eq("company_id", companyId);
   }
 
+  if (salaryMin !== undefined) {
+    query = query.gte("salary_max", salaryMin);
+  }
+
+  if (salaryMax !== undefined) {
+    query = query.lte("salary_min", salaryMax);
+  }
+
   const { data, error } = await query;
 
   if (error) {
@@ -135,7 +147,7 @@ export async function getFeaturedJobs(limit = 6): Promise<JobWithCompany[]> {
 }
 
 export async function getJobCount(options: Omit<JobQueryOptions, "limit" | "offset"> = {}): Promise<number> {
-  const { category, jobType, location, search, featuredOnly, companyId } = options;
+  const { category, jobType, location, search, featuredOnly, companyId, salaryMin, salaryMax } = options;
 
   let query = supabase
     .from("jobs")
@@ -164,6 +176,14 @@ export async function getJobCount(options: Omit<JobQueryOptions, "limit" | "offs
 
   if (companyId) {
     query = query.eq("company_id", companyId);
+  }
+
+  if (salaryMin !== undefined) {
+    query = query.gte("salary_max", salaryMin);
+  }
+
+  if (salaryMax !== undefined) {
+    query = query.lte("salary_min", salaryMax);
   }
 
   const { count, error } = await query;

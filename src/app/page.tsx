@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import { getJobs, getJobCount, getFeaturedJobs } from "@/lib/supabase";
-import { SearchBar, JobCard, JobCardSkeletonList, Pagination, ThemeToggle } from "@/components";
+import { getJobs, getJobCount, getFeaturedJobs, getCategories } from "@/lib/supabase";
+import { JobCard, JobCardSkeletonList, Pagination, ThemeToggle, JobFilters } from "@/components";
+import type { JobType } from "@/types/database";
 
 const JOBS_PER_PAGE = 10;
 
@@ -8,12 +9,17 @@ interface HomePageProps {
   searchParams: Promise<{
     page?: string;
     search?: string;
+    category?: string;
+    jobType?: string;
+    location?: string;
+    salaryMin?: string;
+    salaryMax?: string;
   }>;
 }
 
 function HeroSection() {
   return (
-    <section className="relative py-20 px-4 bg-gradient-to-br from-[rgb(var(--primary))]/10 via-transparent to-[rgb(var(--accent))]/10">
+    <section className="relative py-16 px-4 bg-gradient-to-br from-[rgb(var(--primary))]/10 via-transparent to-[rgb(var(--accent))]/10">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2030%2030%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.22676%200C1.91374%200%202.45351%200.539773%202.45351%201.22676C2.45351%201.91374%201.91374%202.45351%201.22676%202.45351C0.539773%202.45351%200%201.91374%200%201.22676C0%200.539773%200.539773%200%201.22676%200Z%22%20fill%3D%22rgba(0%2C0%2C0%2C0.07)%22%2F%3E%3C%2Fsvg%3E')] dark:bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2030%2030%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.22676%200C1.91374%200%202.45351%200.539773%202.45351%201.22676C2.45351%201.91374%201.91374%202.45351%201.22676%202.45351C0.539773%202.45351%200%201.91374%200%201.22676C0%200.539773%200.539773%200%201.22676%200Z%22%20fill%3D%22rgba(255%2C255%2C255%2C0.07)%22%2F%3E%3C%2Fsvg%3E')]" />
       <div className="relative max-w-4xl mx-auto text-center">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -24,11 +30,6 @@ function HeroSection() {
           Discover thousands of remote opportunities from top companies
           worldwide. Work from anywhere and build your career on your terms.
         </p>
-        <div className="mt-10 max-w-2xl mx-auto">
-          <Suspense fallback={<div className="skeleton h-14 w-full rounded-lg" />}>
-            <SearchBar />
-          </Suspense>
-        </div>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-[rgb(var(--muted-foreground))]">
           <div className="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-[rgb(var(--primary))]">
@@ -107,21 +108,42 @@ function FeaturedJobsSection({ jobs }: FeaturedJobsProps) {
 interface JobListingsProps {
   page: number;
   search?: string;
+  category?: string;
+  jobType?: JobType;
+  location?: string;
+  salaryMin?: number;
+  salaryMax?: number;
 }
 
-async function JobListings({ page, search }: JobListingsProps) {
+async function JobListings({
+  page,
+  search,
+  category,
+  jobType,
+  location,
+  salaryMin,
+  salaryMax,
+}: JobListingsProps) {
   const offset = (page - 1) * JOBS_PER_PAGE;
 
+  const queryOptions = {
+    limit: JOBS_PER_PAGE,
+    offset,
+    search,
+    category,
+    jobType,
+    location,
+    salaryMin,
+    salaryMax,
+  };
+
   const [jobs, totalCount] = await Promise.all([
-    getJobs({
-      limit: JOBS_PER_PAGE,
-      offset,
-      search,
-    }),
-    getJobCount({ search }),
+    getJobs(queryOptions),
+    getJobCount({ search, category, jobType, location, salaryMin, salaryMax }),
   ]);
 
   const totalPages = Math.ceil(totalCount / JOBS_PER_PAGE);
+  const hasFilters = search || category || jobType || location || salaryMin || salaryMax;
 
   if (jobs.length === 0) {
     return (
@@ -131,8 +153,8 @@ async function JobListings({ page, search }: JobListingsProps) {
         </svg>
         <h3 className="mt-4 text-xl font-semibold">No jobs found</h3>
         <p className="mt-2 text-[rgb(var(--muted-foreground))]">
-          {search
-            ? `No jobs match "${search}". Try a different search term.`
+          {hasFilters
+            ? "No jobs match your filters. Try adjusting your search criteria."
             : "No jobs available at the moment. Check back soon!"}
         </p>
       </div>
@@ -143,10 +165,10 @@ async function JobListings({ page, search }: JobListingsProps) {
     <>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">
-          {search ? `Results for "${search}"` : "Latest Jobs"}
+          {hasFilters ? "Search Results" : "Latest Jobs"}
         </h2>
         <span className="text-[rgb(var(--muted-foreground))]">
-          {totalCount.toLocaleString()} jobs
+          {totalCount.toLocaleString()} {totalCount === 1 ? "job" : "jobs"} found
         </span>
       </div>
       <div className="space-y-4">
@@ -169,8 +191,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
   const search = params.search?.trim();
+  const category = params.category?.trim();
+  const jobType = params.jobType as JobType | undefined;
+  const location = params.location?.trim();
+  const salaryMin = params.salaryMin ? parseInt(params.salaryMin, 10) : undefined;
+  const salaryMax = params.salaryMax ? parseInt(params.salaryMax, 10) : undefined;
 
-  const featuredJobs = await getFeaturedJobs(4);
+  const hasFilters = search || category || jobType || location || salaryMin || salaryMax;
+
+  const [featuredJobs, categories] = await Promise.all([
+    getFeaturedJobs(4),
+    getCategories(),
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -178,13 +210,36 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <main className="flex-1">
         <HeroSection />
 
-        {!search && <FeaturedJobsSection jobs={featuredJobs} />}
+        {!hasFilters && <FeaturedJobsSection jobs={featuredJobs} />}
 
         <section className="py-12 bg-[rgb(var(--muted))]/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Suspense fallback={<JobCardSkeletonList count={JOBS_PER_PAGE} />}>
-              <JobListings page={page} search={search} />
-            </Suspense>
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Filters Sidebar */}
+              <aside className="lg:w-72 flex-shrink-0">
+                <div className="lg:sticky lg:top-24">
+                  <h2 className="text-lg font-semibold mb-4">Filters</h2>
+                  <Suspense fallback={<div className="card p-4 skeleton h-96" />}>
+                    <JobFilters categories={categories} />
+                  </Suspense>
+                </div>
+              </aside>
+
+              {/* Job Listings */}
+              <div className="flex-1 min-w-0">
+                <Suspense fallback={<JobCardSkeletonList count={JOBS_PER_PAGE} />}>
+                  <JobListings
+                    page={page}
+                    search={search}
+                    category={category}
+                    jobType={jobType}
+                    location={location}
+                    salaryMin={salaryMin}
+                    salaryMax={salaryMax}
+                  />
+                </Suspense>
+              </div>
+            </div>
           </div>
         </section>
       </main>

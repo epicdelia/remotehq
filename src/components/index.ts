@@ -4,3 +4,4 @@ export { SearchBar } from "./SearchBar";
 export { JobCard } from "./JobCard";
 export { JobCardSkeleton, JobCardSkeletonList } from "./JobCardSkeleton";
 export { Pagination } from "./Pagination";
+export { JobFilters } from "./JobFilters";
