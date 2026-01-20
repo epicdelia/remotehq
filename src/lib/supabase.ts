@@ -245,6 +245,72 @@ export async function getVerifiedCompanies(limit = 50): Promise<Company[]> {
   return data ?? [];
 }
 
+export async function getCompanyBySlug(slug: string): Promise<Company | null> {
+  const { data, error } = await supabase
+    .from("companies")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    throw new Error(`Failed to fetch company: ${error.message}`);
+  }
+
+  return data;
+}
+
+export interface CompanyWithJobCount extends Company {
+  job_count: number;
+}
+
+export async function getCompaniesWithJobCount(limit = 50, offset = 0): Promise<CompanyWithJobCount[]> {
+  const { data, error } = await supabase
+    .from("companies")
+    .select("*, jobs!inner(id)")
+    .order("name")
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    throw new Error(`Failed to fetch companies: ${error.message}`);
+  }
+
+  // Count jobs for each company
+  const companiesWithCount = (data ?? []).map((company) => {
+    const { jobs, ...companyData } = company as Company & { jobs: { id: string }[] };
+    return {
+      ...companyData,
+      job_count: jobs?.length ?? 0,
+    };
+  });
+
+  return companiesWithCount;
+}
+
+export async function getCompanyCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from("companies")
+    .select("*", { count: "exact", head: true });
+
+  if (error) {
+    throw new Error(`Failed to count companies: ${error.message}`);
+  }
+
+  return count ?? 0;
+}
+
+export async function getJobsByCompanySlug(slug: string, limit = 20): Promise<JobWithCompany[]> {
+  // First get the company by slug
+  const company = await getCompanyBySlug(slug);
+  if (!company) {
+    return [];
+  }
+
+  return getJobs({ companyId: company.id, limit });
+}
+
 // ============================================
 // CATEGORY QUERY HELPERS
 // ============================================

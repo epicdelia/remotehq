@@ -6,3 +6,4 @@ export { JobCardSkeleton, JobCardSkeletonList } from "./JobCardSkeleton";
 export { Pagination } from "./Pagination";
 export { JobFilters } from "./JobFilters";
 export { ShareButtons } from "./ShareButtons";
+export { CompanyCard, CompanyCardSkeleton, CompanyCardSkeletonList } from "./CompanyCard";

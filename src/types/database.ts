@@ -8,6 +8,7 @@ export type AlertFrequency = 'instant' | 'daily' | 'weekly';
 export interface Company {
   id: string;
   name: string;
+  slug: string;
   logo_url: string | null;
   website: string | null;
   description: string | null;
@@ -68,8 +69,9 @@ export interface JobAlert {
 }
 
 // Insert types for creating new records
-export type CompanyInsert = Omit<Company, 'id' | 'created_at' | 'updated_at'> & {
+export type CompanyInsert = Omit<Company, 'id' | 'slug' | 'created_at' | 'updated_at'> & {
   id?: string;
+  slug?: string;
   created_at?: string;
   updated_at?: string;
 };

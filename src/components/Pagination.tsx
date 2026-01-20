@@ -6,13 +6,17 @@ import { useTransition } from "react";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  totalItems: number;
+  totalItems?: number;
+  basePath?: string;
+  itemLabel?: string;
 }
 
 export function Pagination({
   currentPage,
   totalPages,
   totalItems,
+  basePath = "/",
+  itemLabel = "jobs",
 }: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,8 +31,10 @@ export function Pagination({
     } else {
       params.set("page", page.toString());
     }
+    const queryString = params.toString();
+    const url = queryString ? `${basePath}?${queryString}` : basePath;
     startTransition(() => {
-      router.push(`/?${params.toString()}`);
+      router.push(url);
     });
   };
 
@@ -72,7 +78,7 @@ export function Pagination({
       aria-label="Pagination"
     >
       <p className="text-sm text-[rgb(var(--muted-foreground))]">
-        Page {currentPage} of {totalPages} ({totalItems.toLocaleString()} jobs)
+        Page {currentPage} of {totalPages}{totalItems !== undefined ? ` (${totalItems.toLocaleString()} ${itemLabel})` : ""}
       </p>
 
       <div className="flex items-center gap-1">

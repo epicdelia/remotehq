@@ -1,14 +1,15 @@
 {
   "id": "09a71aeb-f8bd-41d9-89b3-90ce63dc353f",
-  "status": "running",
+  "status": "interrupted",
   "startedAt": "2026-01-20T06:44:39.253Z",
-  "updatedAt": "2026-01-20T07:04:34.146Z",
+  "updatedAt": "2026-01-20T07:18:06.664Z",
   "agentPlugin": "claude",
   "trackerPlugin": "json",
   "prdPath": "./prd.json",
-  "currentIteration": 5,
+  "currentIteration": 10,
   "maxIterations": 10,
   "totalTasks": 0,
-  "tasksCompleted": 5,
-  "cwd": "/Users/delia/Desktop/Projects/remote-jobs"
+  "tasksCompleted": 6,
+  "cwd": "/Users/delia/Desktop/Projects/remote-jobs",
+  "endedAt": "2026-01-20T07:18:06.664Z"
 }
