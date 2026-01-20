@@ -1,0 +1,23 @@
+// Re-export all types from database.ts
+export type {
+  JobType,
+  AlertFrequency,
+  Company,
+  Category,
+  Job,
+  JobWithCompany,
+  JobAlertFilters,
+  JobAlert,
+  CompanyInsert,
+  CategoryInsert,
+  JobInsert,
+  JobAlertInsert,
+  CompanyUpdate,
+  CategoryUpdate,
+  JobUpdate,
+  JobAlertUpdate,
+  Database,
+  Tables,
+  InsertTables,
+  UpdateTables,
+} from './database';
