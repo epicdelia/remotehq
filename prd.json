@@ -1,0 +1,253 @@
+{
+  "name": "RemoteHQ",
+  "description": "A niche remote job board that aggregates remote job listings and allows companies to post paid job listings. Features job search, filtering, email alerts, and a B2B monetization model.",
+  "userStories": [
+    {
+      "id": "RJ-001",
+      "title": "Project Setup and Configuration",
+      "description": "Initialize Next.js 14 project with TypeScript, Tailwind CSS, Supabase client, and Stripe integration. Set up project structure with proper folder organization.",
+      "acceptanceCriteria": [
+        "Next.js 14 project created with App Router",
+        "TypeScript configured with strict mode",
+        "Tailwind CSS installed and configured",
+        "Supabase client configured with environment variables",
+        "Stripe SDK installed",
+        "Folder structure: src/app, src/components, src/lib, src/types",
+        "Environment variables template created"
+      ],
+      "dependencies": [],
+      "passes": true,
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "RJ-002",
+      "title": "Database Schema Design",
+      "description": "Create Supabase database schema for jobs, companies, categories, and user subscriptions with proper indexes and RLS policies.",
+      "acceptanceCriteria": [
+        "Jobs table with: id, company_id, title, description, salary_min, salary_max, location, job_type, category, tags, apply_url, is_featured, is_active, posted_at, expires_at",
+        "Companies table with: id, name, logo_url, website, description, is_verified",
+        "Categories table with: id, name, slug, icon",
+        "Job alerts table with: id, email, filters (jsonb), frequency, is_active",
+        "RLS policies for public read access to active jobs",
+        "Indexes on frequently queried columns"
+      ],
+      "dependencies": [
+        "RJ-001"
+      ],
+      "passes": true,
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "RJ-003",
+      "title": "TypeScript Types and Database Utilities",
+      "description": "Create TypeScript type definitions for database tables and utility functions for Supabase queries.",
+      "acceptanceCriteria": [
+        "Database types exported from src/types/database.ts",
+        "Job, Company, Category, JobAlert types defined",
+        "Supabase client utility with lazy loading pattern",
+        "Query helper functions for common operations"
+      ],
+      "dependencies": [
+        "RJ-002"
+      ],
+      "passes": true,
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "RJ-004",
+      "title": "Homepage with Job Listings",
+      "description": "Build the main homepage displaying job listings with a hero section, search bar, and paginated job cards showing company logo, job title, salary, location, and tags.",
+      "acceptanceCriteria": [
+        "Hero section with headline and search bar",
+        "Job cards showing: company logo, job title, company name, salary range, location, tags, posted date",
+        "Featured jobs highlighted at top",
+        "Pagination or infinite scroll",
+        "Loading skeletons during data fetch",
+        "Mobile responsive design",
+        "Dark mode support"
+      ],
+      "dependencies": [
+        "RJ-003"
+      ],
+      "passes": true,
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "RJ-005",
+      "title": "Job Search and Filtering",
+      "description": "Implement advanced job search with filters for category, job type, salary range, and location. Include URL-based filter state for shareable searches.",
+      "acceptanceCriteria": [
+        "Search input with debounced query",
+        "Category filter dropdown",
+        "Job type filter (full-time, part-time, contract, freelance)",
+        "Salary range filter with min/max inputs",
+        "Location/timezone filter",
+        "Filters reflected in URL params",
+        "Clear all filters button",
+        "Result count display"
+      ],
+      "dependencies": [
+        "RJ-004"
+      ],
+      "passes": true,
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "RJ-006",
+      "title": "Job Detail Page",
+      "description": "Create dynamic job detail page showing full job information, company details, and apply button.",
+      "acceptanceCriteria": [
+        "Dynamic route /jobs/[id]",
+        "Full job description with markdown support",
+        "Company sidebar with logo, name, website link",
+        "Salary and benefits section",
+        "Apply button linking to external application",
+        "Share job buttons (Twitter, LinkedIn, copy link)",
+        "Related jobs section",
+        "SEO meta tags"
+      ],
+      "dependencies": [
+        "RJ-004"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-007",
+      "title": "Company Profiles",
+      "description": "Build company profile pages showing company information and all their job listings.",
+      "acceptanceCriteria": [
+        "Dynamic route /companies/[slug]",
+        "Company header with logo, name, website, description",
+        "List of all active jobs from company",
+        "Verified badge for verified companies",
+        "Company directory page at /companies"
+      ],
+      "dependencies": [
+        "RJ-006"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-008",
+      "title": "Job Alert Subscriptions",
+      "description": "Allow users to subscribe to job alerts via email with customizable filters and frequency.",
+      "acceptanceCriteria": [
+        "Email subscription form in sidebar/footer",
+        "Filter selection for alerts (category, job type, keywords)",
+        "Frequency selection (daily, weekly)",
+        "Email verification flow",
+        "Unsubscribe link in emails",
+        "Alert preferences management page"
+      ],
+      "dependencies": [
+        "RJ-005"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-009",
+      "title": "Post a Job Form (Company Side)",
+      "description": "Create a multi-step job posting form for companies with job details, company info, and preview.",
+      "acceptanceCriteria": [
+        "Multi-step form: Job Details -> Company Info -> Preview -> Payment",
+        "Job fields: title, description (rich text), category, job type, salary, location, tags, apply URL",
+        "Company fields: name, logo upload, website, description",
+        "Live preview of job listing",
+        "Form validation with error messages",
+        "Save draft functionality"
+      ],
+      "dependencies": [
+        "RJ-003"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-010",
+      "title": "Stripe Payment Integration",
+      "description": "Integrate Stripe for job posting payments with different pricing tiers (basic, featured, premium).",
+      "acceptanceCriteria": [
+        "Pricing tiers: Basic ($99), Featured ($199), Premium ($299)",
+        "Stripe Checkout integration",
+        "Webhook handling for payment confirmation",
+        "Job activation after successful payment",
+        "Payment receipt emails",
+        "Lazy-loaded Stripe client for Vercel compatibility"
+      ],
+      "dependencies": [
+        "RJ-009"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-011",
+      "title": "Admin Dashboard",
+      "description": "Build an admin dashboard for managing jobs, companies, and viewing analytics.",
+      "acceptanceCriteria": [
+        "Protected admin routes with auth",
+        "Jobs management: approve, edit, delete, feature",
+        "Companies management: verify, edit, delete",
+        "Analytics overview: total jobs, views, applications",
+        "Revenue tracking from job posts"
+      ],
+      "dependencies": [
+        "RJ-010"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-012",
+      "title": "SEO and Performance Optimization",
+      "description": "Optimize for search engines with proper meta tags, structured data, sitemap, and performance improvements.",
+      "acceptanceCriteria": [
+        "Dynamic meta tags for all pages",
+        "JSON-LD structured data for job postings",
+        "Sitemap.xml generation",
+        "Robots.txt configuration",
+        "Image optimization with next/image",
+        "Core Web Vitals optimization"
+      ],
+      "dependencies": [
+        "RJ-006",
+        "RJ-007"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-013",
+      "title": "Job Scraping API Integration",
+      "description": "Create API routes to aggregate jobs from external sources and RSS feeds to populate the job board.",
+      "acceptanceCriteria": [
+        "API route for importing jobs",
+        "Support for common job board APIs",
+        "RSS feed parser for job aggregation",
+        "Duplicate detection by job URL",
+        "Rate limiting on import endpoints",
+        "Cron job setup for scheduled imports"
+      ],
+      "dependencies": [
+        "RJ-003"
+      ],
+      "passes": false
+    },
+    {
+      "id": "RJ-014",
+      "title": "Landing Page and Marketing",
+      "description": "Create compelling landing page for employers with pricing, testimonials, and clear CTAs to post jobs.",
+      "acceptanceCriteria": [
+        "Employer landing page at /post-job or /employers",
+        "Pricing table with tier comparison",
+        "Stats section (jobs posted, companies, candidates)",
+        "Testimonials section",
+        "FAQ section",
+        "Clear CTA buttons to start posting"
+      ],
+      "dependencies": [
+        "RJ-010"
+      ],
+      "passes": false
+    }
+  ],
+  "metadata": {
+    "updatedAt": "2026-01-20T07:04:35.152Z"
+  }
+}
